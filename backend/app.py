@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import time
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -10,10 +11,8 @@ db = SQLAlchemy(app)
 
 class Wash(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    start = db.Column(db.Integer, unique=True, nullable=False)
-    stop = db.Column(db.Integer, unique=True, nullable=False)
-    username = db.Column(db.String(120), unique=True, nullable=False)
-
+    bdstatus = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
     def __repr__(self):
         return '<Wash %r>' % self.id
 
@@ -22,6 +21,10 @@ class Wash(db.Model):
 def create_bd():
     if request.method == 'POST':
         curStatus = int(request.form.get('status'))
+        wash = Wash(bdstatus=curStatus)
+        db.session.add(wash)
+        db.session.commit()
+
         while True: 
             if(curStatus == 1) :
                 time.sleep(2)
@@ -32,7 +35,7 @@ def create_bd():
             elif(curStatus == 4) :
                 time.sleep(2)
 
-            #добавить в бд запись
+                #добавить в бд запись
             return jsonify(
                 status = curStatus + 1
             )
@@ -40,6 +43,10 @@ def create_bd():
 
 
 #маршрут получения журнала
+@app.route('/api/bdres', methods = ['POST'])
+def output_bd():
+    wash = Wash.query.order_by(Wash.date.desc()).all()
+    return jsonify(wash)
 
 if __name__ == '__main__':
     app.run(threaded=True)
