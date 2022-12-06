@@ -11,8 +11,8 @@ db = SQLAlchemy(app)
 
 class Wash(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    bdStatus = db.Column(db.Integer, nullable=False)
-    bdStatusName = db.Column(db.String(100), nullable=False) 
+    dbStatus = db.Column(db.Integer, nullable=False)
+    dbStatusName = db.Column(db.String(100), nullable=False) 
     date = db.Column(db.DateTime, default=datetime.utcnow)
     def __repr__(self):
         return '<Wash %r>' % self.id
@@ -24,7 +24,7 @@ def create_bd():
     if request.method == 'POST':
         try:
             curStatus = int(request.form.get('status'))
-            wash = Wash(bdStatus=curStatus, bdStatusName = statusNames[curStatus])
+            wash = Wash(dbStatus=curStatus, dbStatusName = statusNames[curStatus])
             db.session.add(wash)
             db.session.commit()
         except: 
@@ -49,7 +49,7 @@ def create_bd():
 
 
 #маршрут получения журнала
-@app.route('/api/bdres', methods = ['GET'])
+@app.route('/api/dbres', methods = ['GET'])
 def output_bd():
     wash = Wash.query.order_by(Wash.date.desc()).all()
     return jsonify(wash)
