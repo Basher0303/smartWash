@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $('#start-btn').click(function () {
-        request(1);       
+        request(0);       
     });
 });
 
@@ -15,7 +15,7 @@ function request(status) {
         },
         success: function (response) {
             console.log(response.status);
-            if(status != 5) 
+            if(response.status != 5) 
                 request(response.status);
         }
     }); 
