@@ -11,19 +11,24 @@ db = SQLAlchemy(app)
 
 class Wash(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    bdstatus = db.Column(db.Integer, nullable=False)
+    bdStatus = db.Column(db.Integer, nullable=False)
+    bdStatusName = db.Column(db.String(100), nullable=False) 
     date = db.Column(db.DateTime, default=datetime.utcnow)
     def __repr__(self):
         return '<Wash %r>' % self.id
 
+statusNames = ["Нанесение эмульсии", "Нанесение пены", "Мойка", "Нанесение воска", "Сушка"]
 
 @app.route('/api/status', methods=['POST'])
 def create_bd():
     if request.method == 'POST':
-        curStatus = int(request.form.get('status'))
-        wash = Wash(bdstatus=curStatus)
-        db.session.add(wash)
-        db.session.commit()
+        try:
+            curStatus = int(request.form.get('status'))
+            wash = Wash(bdStatus=curStatus, bdStatusName = statusNames[curStatus])
+            db.session.add(wash)
+            db.session.commit()
+        except: 
+            return "404"
 
         while True: 
             if(curStatus == 1) :
@@ -34,7 +39,8 @@ def create_bd():
                 time.sleep(2)
             elif(curStatus == 4) :
                 time.sleep(2)
-
+            elif(curStatus == 5) :
+                time.sleep(2)
                 #добавить в бд запись
             return jsonify(
                 status = curStatus + 1
@@ -43,7 +49,7 @@ def create_bd():
 
 
 #маршрут получения журнала
-@app.route('/api/bdres', methods = ['POST'])
+@app.route('/api/bdres', methods = ['GET'])
 def output_bd():
     wash = Wash.query.order_by(Wash.date.desc()).all()
     return jsonify(wash)
