@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#start-btn').click(function () {
         $(this).attr('disabled', true);
         changeIcon(1);
-        request(1);       
+        request(0);       
     });
 });
 
