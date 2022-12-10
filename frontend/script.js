@@ -1,5 +1,7 @@
 $(document).ready(function() {
     $('#start-btn').click(function () {
+        $(this).attr('disabled', true);
+        changeIcon(1);
         request(1);       
     });
 });
@@ -14,9 +16,14 @@ function request(status) {
             status: status,
         },
         success: function (response) {
+            changeIcon(response.status);
             console.log(response.status);
-            if(status != 5) 
+            if(response.status != 5) 
                 request(response.status);
         }
     }); 
+}
+
+function changeIcon(status) {
+    $('.icon').attr('src', `./src/status-${status}.png`);
 }

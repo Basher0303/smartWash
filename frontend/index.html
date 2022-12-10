@@ -9,8 +9,24 @@
     </head>
     <body>
         <div class="main">
-            <h1>Умная автомойка</h1>
-            <button type="button" id="start-btn">Начать мойку</button>
+            <div class="card">
+                <h1 class="title">Умная автомойка</h1>
+                <div class="content">
+                    <div class="btn-group">
+                        <button type="button" id="start-btn">Начать мойку</button>
+                    </div>
+                    <div class="status-block">
+                        <h3>Нанесение воска</h3>
+                        <img src="./src/status-0.png" alt="icon" class="icon">
+                        <progress id="file" max="100" value="70"></progress>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-list">
+                <div class="content">
+                    <button type="button" id="list-btn">Показать журнал</button>
+                </div>
+            </div>
         </div>
     </body>
 </html>
