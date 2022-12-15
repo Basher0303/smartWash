@@ -23,7 +23,7 @@ body {
 	background-color: white;
 	border-radius: 10px;
 	box-shadow: 0px 0px 7px 3px #0000000d;
-	padding: 20px;
+	padding: 20px 40px;
 }
 
 .title {
@@ -32,6 +32,8 @@ body {
 
 .content {
 	display: flex;
+	width: 100%;
+	justify-content: space-between;
 }
 
 .btn-group {
@@ -40,13 +42,8 @@ body {
 }
 
 .status-block{
-	margin-left: 100px;
 	display: flex;
 	flex-direction: column;
-}
-
-progress {
-	margin-top: 10px;
 }
 
 button {
@@ -89,3 +86,83 @@ button:disabled {
 .card-list {
 	margin-top: 15px;
 }
+
+
+
+.step-list {
+	margin-top: 20px;
+	display: block;
+	list-style: none;
+}
+.step-list li {
+	list-style: none;
+	border-radius: 50%;
+	border: 2px solid #7a97d1;
+	background: #00000000;;
+	width: 30px;
+	height: 30px;
+	line-height: 27px;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	font-weight: bold;
+	color: #7a97d1;
+	font-size: 1.2em;
+	font-family: sans-serif;
+}
+.step-list li.active {
+	border-color: #385898;
+	background: #e7f3ff;
+}
+.step-list li.active:before {
+	background: #385898 !important;
+}
+
+.step-list li + li {
+	margin-top: 14px;
+}
+
+.step-list li h6{
+	margin-left: 45px;
+}
+
+.step-list li.active h6{
+	color: #385898;
+}
+
+.step-list li:nth-child(n+2):before {
+	background: #7a97d1;
+	content: '';
+	display: block;
+	height: 14px;
+	width: 2px;
+	position: absolute;
+	top: -9px;
+	transform: translatey(-50%);
+	left: calc(50% - 1px);
+}
+
+.step-list li.progress {
+	animation: progressCircle 0.5s infinite alternate;
+}
+
+.step-list li.progress:before {
+	animation: progressLine 0.5s infinite alternate;
+}
+
+
+@keyframes progressCircle {
+	100% {
+		background: #e7f3ff;
+		border-color: #385898;
+	}
+}
+
+@keyframes progressLine {
+	100% {
+		background: #385898;
+	}
+}
+
+
