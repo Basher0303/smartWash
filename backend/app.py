@@ -1,58 +1,135 @@
 from flask import Flask, render_template, request, redirect, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import time
+import asyncio
+import threading
+import subprocess
 from datetime import datetime
+import mysql.connector
+import json
 
+loop = asyncio.get_event_loop()
 app = Flask(__name__)
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-db = SQLAlchemy(app)
 
-class Wash(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    dbStatus = db.Column(db.Integer, nullable=False)
-    dbStatusName = db.Column(db.String(100), nullable=False) 
-    date = db.Column(db.DateTime, default=datetime.utcnow)
-    def __repr__(self):
-        return '<Wash %r>' % self.id
 
-statusNames = ["Нанесение эмульсии", "Нанесение пены", "Мойка", "Нанесение воска", "Сушка"]
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="alex",
+    passwd="03032002",
+    database="wash"
+)
 
-@app.route('/api/status', methods=['POST'])
-def create_bd():
-    if request.method == 'POST':
-        try:
-            curStatus = int(request.form.get('status'))
-            wash = Wash(dbStatus=curStatus, dbStatusName = statusNames[curStatus])
-            db.session.add(wash)
-            db.session.commit()
-        except: 
-            return "404"
+my_cursor = mydb.cursor()
+
+
+statusNames = ["Мойка свододна", "Нанесение эмульсии", "Нанесение пены", "Мойка", "Нанесение воска", "Сушка"]
+statusWash = 0
+isWashActive = False
+statusChanged = False
+
+
+
+@app.route('/api/start', methods=['GET'])
+async def starting():
+    if request.method == 'GET':
+        global isWashActive, statusChanged
+        if isWashActive == False:
+            th2 = threading.Thread(target=asyncio.run, args=(startWash(), ))
+            th2.start()
+            isWashActive = True
 
         while True: 
-            if(curStatus == 1) :
-                time.sleep(2)
-            elif(curStatus == 2) :
-                time.sleep(2)
-            elif(curStatus == 3) :
-                time.sleep(2)
-            elif(curStatus == 4) :
-                time.sleep(2)
-            elif(curStatus == 5) :
-                time.sleep(2)
-                #добавить в бд запись
-            return jsonify(
-                status = curStatus + 1
-            )
+            print(statusWash)
+            if(statusChanged == True):
+                statusChanged = False
+                return jsonify(
+                    status = statusWash,
+                    statusName = statusNames[statusWash]
+                )
+            time.sleep(0.5)            
 
 
+
+#Старт мойки
+async def startWash():
+    await addEmulsion()
+    await addFoam()
+    await washAway()
+    await addWax()
+    await drying()
+    await endWash()
+
+#Нанесение эмульсии
+async def addEmulsion():
+    global statusWash, statusChanged
+    statusWash = 1
+    addStatusInDb()
+    statusChanged = True
+    await asyncio.sleep(5)
+
+#Нанесение пены
+async def addFoam():
+    global statusWash, statusChanged
+    statusWash = 2
+    addStatusInDb()
+    statusChanged = True
+    await asyncio.sleep(5)
+
+#Мойка
+async def washAway():
+    global statusWash, statusChanged
+    statusWash = 3
+    addStatusInDb()
+    statusChanged = True
+    await asyncio.sleep(5)
+
+#нанесение воска
+async def addWax():
+    global statusWash, statusChanged
+    statusWash = 4
+    addStatusInDb()
+    statusChanged = True
+    await asyncio.sleep(5)
+
+#Сушка
+async def drying():
+    global statusWash, statusChanged
+    statusWash = 5
+    addStatusInDb()
+    statusChanged = True
+    await asyncio.sleep(5)
+
+#Конец мойки
+async def endWash():
+    global statusWash, statusChanged, isWashActive
+    statusWash = 0
+    addStatusInDb()
+    statusChanged = True
+    isWashActive = False
+
+
+
+#Добавить статус в базу данных
+def addStatusInDb():
+    my_cursor.execute(f"INSERT INTO `logs` (`id`, `date`, `status`) VALUES (NULL, {int(time.time())}, {statusWash});")
+    mydb.commit()
 
 #маршрут получения журнала
 @app.route('/api/dbres', methods = ['GET'])
 def output_bd():
-    wash = Wash.query.order_by(Wash.date.desc()).all()
-    return jsonify(wash)
+    my_cursor.execute("SELECT * FROM `logs`")
+    res = []
+    for log in my_cursor :
+        res.append({
+            "id": log[0],
+            "date": log[1],
+            "status": log[2]
+        })
+    return res
 
-if __name__ == '__main__':
-    app.run(threaded=True)
+
+
+
+th1 = threading.Thread(target=app.run)
+th1.start()
