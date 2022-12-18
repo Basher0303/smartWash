@@ -8,12 +8,11 @@ body {
 	background-color: #f6f6f6;
 }
 .main {
-	height: 100vh;
 	width: 500px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
 	margin: auto;
+	margin-top: 100px;
 }
 
 .card {
@@ -36,6 +35,11 @@ body {
 	justify-content: space-between;
 }
 
+.wrapper {
+	display: flex;
+	flex-direction: column;
+}
+
 .btn-group {
 	display: flex;
 	flex-direction: column;
@@ -44,6 +48,11 @@ body {
 .status-block{
 	display: flex;
 	flex-direction: column;
+}
+
+#list-btn {
+	margin: auto;
+	margin-bottom: 30px;
 }
 
 button {
